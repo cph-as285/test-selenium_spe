@@ -90,7 +90,29 @@ namespace SeleniumSPE
                 var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(WaitTime));
                 driver.Navigate().GoToUrl(Url);
 
+                wait.Until(d =>
+                {
+                    var sortBtn = driver.FindElementByCssSelector("#h_year");
+                    if (sortBtn == null)
+                        return false;
+                    sortBtn.Click();
+                    return true;
+                });
 
+                wait.Until(d =>
+                {
+                    var rows = d.FindElements(By.CssSelector("#tbodycars tr"));
+
+                    if (rows == null || rows.Count <= 0)
+                        return false;
+
+                    var firstRow = rows[0];
+                    var lastRow = rows[rows.Count - 1];
+
+
+                    return firstRow.FindElements(By.CssSelector("td"))[0].Text == "938" &&
+                           lastRow.FindElements(By.CssSelector("td"))[0].Text == "940";
+                });
             }
         }
     }

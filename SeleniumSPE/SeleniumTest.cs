@@ -110,9 +110,85 @@ namespace SeleniumSPE
                     var lastRow = rows[rows.Count - 1];
 
 
-                    return firstRow.FindElements(By.CssSelector("td"))[0].Text == "938" &&
-                           lastRow.FindElements(By.CssSelector("td"))[0].Text == "940";
+                    return firstRow.FindElement(By.CssSelector("td")).Text == "938" &&
+                           lastRow.FindElement(By.CssSelector("td")).Text == "940";
                 });
+            }
+        }
+
+        [Test]
+        public void EditTest()
+        {
+            using (var driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(DriverPath)))
+            {
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(WaitTime));
+                driver.Navigate().GoToUrl(Url);
+
+                var carId = "938";
+                wait.Until(d =>
+                {
+                    var rows = d.FindElements(By.CssSelector("#tbodycars tr"));
+                    if (rows == null || rows.Count <= 0)
+                        return false;
+
+                    IWebElement carRow = null;
+
+                    foreach (var row in rows)
+                    {
+                        var id = row.FindElement(By.CssSelector("td")).Text;
+                        if (id.Equals(carId))
+                        {
+                            carRow = row;
+                            break;
+                        }
+                    }
+
+                    if (carRow == null)
+                        return false;
+
+                    carRow.FindElement(By.CssSelector("a")).Click();
+                    return true;
+                });
+
+                wait.Until(d =>
+                {
+                    var idInput = driver.FindElementByCssSelector("#id");
+                    return idInput.GetAttribute("value").Equals(carId);
+                });
+
+                var coolCar = "Cool car";
+
+                driver.FindElementByCssSelector("#description").SendKeys(Keys.Control + "a");
+                driver.FindElementByCssSelector("#description").SendKeys(Keys.Delete);
+                driver.FindElementByCssSelector("#description").SendKeys(coolCar);
+
+                driver.FindElementByCssSelector("#save").Click();
+
+                wait.Until(d =>
+                {
+                    var rows = d.FindElements(By.CssSelector("#tbodycars tr"));
+                    if (rows == null || rows.Count <= 0)
+                        return false;
+
+                    IWebElement carRow = null;
+
+                    foreach (var row in rows)
+                    {
+                        var id = row.FindElement(By.CssSelector("td")).Text;
+                        if (id.Equals(carId))
+                        {
+                            carRow = row;
+                            break;
+                        }
+                    }
+
+                    if (carRow == null)
+                        return false;
+
+                    var desc = carRow.FindElements(By.CssSelector("td"))[5].Text;
+                    return desc.Equals(coolCar);
+                });
+
             }
         }
     }

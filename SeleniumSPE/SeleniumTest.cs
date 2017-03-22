@@ -9,6 +9,7 @@ using NUnit.Framework;
 using NUnit.Framework.Internal;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
 
 namespace SeleniumSPE
@@ -85,14 +86,14 @@ namespace SeleniumSPE
         [Test]
         public void SortTest()
         {
-            using (var driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(DriverPath)))
+            using (var driver = CreateDriver())
             {
                 var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(WaitTime));
                 driver.Navigate().GoToUrl(Url);
 
                 wait.Until(d =>
                 {
-                    var sortBtn = driver.FindElementByCssSelector("#h_year");
+                    var sortBtn = driver.FindElement(By.CssSelector("#h_year"));
                     if (sortBtn == null)
                         return false;
                     sortBtn.Click();
@@ -119,7 +120,7 @@ namespace SeleniumSPE
         [Test]
         public void EditTest()
         {
-            using (var driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(DriverPath)))
+            using (var driver = CreateDriver())
             {
                 var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(WaitTime));
                 driver.Navigate().GoToUrl(Url);
@@ -152,17 +153,17 @@ namespace SeleniumSPE
 
                 wait.Until(d =>
                 {
-                    var idInput = driver.FindElementByCssSelector("#id");
+                    var idInput = driver.FindElement(By.CssSelector("#id"));
                     return idInput.GetAttribute("value").Equals(carId);
                 });
 
                 var coolCar = "Cool car";
 
-                driver.FindElementByCssSelector("#description").SendKeys(Keys.Control + "a");
-                driver.FindElementByCssSelector("#description").SendKeys(Keys.Delete);
-                driver.FindElementByCssSelector("#description").SendKeys(coolCar);
+                driver.FindElement(By.CssSelector("#description")).SendKeys(Keys.Control + "a");
+                driver.FindElement(By.CssSelector("#description")).SendKeys(Keys.Delete);
+                driver.FindElement(By.CssSelector("#description")).SendKeys(coolCar);
 
-                driver.FindElementByCssSelector("#save").Click();
+                driver.FindElement(By.CssSelector("#save")).Click();
 
                 wait.Until(d =>
                 {
@@ -188,8 +189,30 @@ namespace SeleniumSPE
                     var desc = carRow.FindElements(By.CssSelector("td"))[5].Text;
                     return desc.Equals(coolCar);
                 });
-
             }
+        }
+
+        [Test]
+        public void SaveErrorTest()
+        {
+            using (var driver = CreateDriver())
+            {
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(WaitTime));
+                driver.Navigate().GoToUrl(Url);
+
+                wait.Until(d => d.FindElement(By.CssSelector("#new")) != null);
+
+                driver.FindElement(By.CssSelector("#new")).Click();
+                driver.FindElement(By.CssSelector("#save")).Click();
+                
+                wait.Until(d => d.FindElement(By.CssSelector("#submiterr")).Text.Equals("All fields are required"));
+            }
+        }
+
+        private IWebDriver CreateDriver()
+        {
+            return new ChromeDriver(ChromeDriverService.CreateDefaultService(DriverPath));
+            //return new FirefoxDriver(FirefoxDriverService.CreateDefaultService(DriverPath));
         }
     }
 }

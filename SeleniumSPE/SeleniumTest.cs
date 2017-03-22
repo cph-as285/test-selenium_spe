@@ -206,13 +206,48 @@ namespace SeleniumSPE
                 driver.FindElement(By.CssSelector("#save")).Click();
                 
                 wait.Until(d => d.FindElement(By.CssSelector("#submiterr")).Text.Equals("All fields are required"));
+
+                wait.Until(d =>
+                {
+                    var rows = d.FindElements(By.CssSelector("#tbodycars tr"));
+                    return rows.Count == 5;
+                });
+            }
+        }
+
+        [Test]
+        public void NewCarTest()
+        {
+            using (var driver = CreateDriver())
+            {
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(WaitTime));
+                driver.Navigate().GoToUrl(Url);
+
+                wait.Until(d => d.FindElement(By.CssSelector("#new")) != null);
+
+                driver.FindElement(By.CssSelector("#new")).Click();
+
+                driver.FindElement(By.CssSelector("#year")).SendKeys("2008");
+                driver.FindElement(By.CssSelector("#registered")).SendKeys("2002-5-5");
+                driver.FindElement(By.CssSelector("#make")).SendKeys("Kia");
+                driver.FindElement(By.CssSelector("#model")).SendKeys("Rio");
+                driver.FindElement(By.CssSelector("#description")).SendKeys("As new");
+                driver.FindElement(By.CssSelector("#price")).SendKeys("31000");
+
+                driver.FindElement(By.CssSelector("#save")).Click();
+
+                wait.Until(d =>
+                {
+                    var rows = d.FindElements(By.CssSelector("#tbodycars tr"));
+                    return rows.Count == 6;
+                });
             }
         }
 
         private IWebDriver CreateDriver()
         {
-            return new ChromeDriver(ChromeDriverService.CreateDefaultService(DriverPath));
-            //return new FirefoxDriver(FirefoxDriverService.CreateDefaultService(DriverPath));
+            //return new ChromeDriver(ChromeDriverService.CreateDefaultService(DriverPath));
+            return new FirefoxDriver(FirefoxDriverService.CreateDefaultService(DriverPath));
         }
     }
 }

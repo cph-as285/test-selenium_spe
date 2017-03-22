@@ -34,7 +34,7 @@ namespace SeleniumSPE
         [Test]
         public void InitialLoadTest()
         {
-            using (var driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(DriverPath)))
+            using (var driver = CreateDriver())
             {
                 var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(WaitTime));
                 driver.Navigate().GoToUrl(Url);
@@ -50,7 +50,7 @@ namespace SeleniumSPE
         [Test]
         public void FilterTest()
         {
-            using (var driver = new ChromeDriver(ChromeDriverService.CreateDefaultService(DriverPath)))
+            using (var driver = CreateDriver())
             {
                 var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(WaitTime));
                 driver.Navigate().GoToUrl(Url);
@@ -59,7 +59,7 @@ namespace SeleniumSPE
 
                 wait.Until(d =>
                 {
-                    var filter = driver.FindElementById("filter");
+                    var filter = driver.FindElement(By.CssSelector("#filter"));
                     if (filter == null)
                         return false;
                     filter.SendKeys("2002");
@@ -72,8 +72,8 @@ namespace SeleniumSPE
                     return rows.Count == 2;
                 });
 
-                driver.FindElementById("filter").SendKeys(Keys.Control + "a");
-                driver.FindElementById("filter").SendKeys(Keys.Delete);
+                driver.FindElement(By.CssSelector("#filter")).SendKeys(Keys.Control + "a");
+                driver.FindElement(By.CssSelector("#filter")).SendKeys(Keys.Delete);
 
                 wait.Until(d =>
                 {
